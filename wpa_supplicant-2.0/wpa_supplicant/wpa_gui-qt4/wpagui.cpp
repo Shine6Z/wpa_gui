@@ -6,6 +6,9 @@
  * See README for more details.
  */
 
+//hack
+#define QT_NO_SESSIONMANAGER
+
 #ifdef CONFIG_NATIVE_WINDOWS
 #include <windows.h>
 #endif /* CONFIG_NATIVE_WINDOWS */
@@ -32,7 +35,7 @@ static int wpagui_printf(const char *, ...)
 }
 #endif
 
-WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *, Qt::WFlags)
+WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *, Qt::WindowFlags, int argc, char ** argv)
 	: QMainWindow(parent), app(_app)
 {
 	setupUi(this);
@@ -135,7 +138,7 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *, Qt::WFlags)
 	msgNotifier = NULL;
 	ctrl_iface_dir = strdup("/var/run/wpa_supplicant");
 
-	parse_argv();
+	parse_argv(argc, argv);
 
 #ifndef QT_NO_SESSIONMANAGER
 	if (app->isSessionRestored()) {
@@ -157,7 +160,7 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *, Qt::WFlags)
 	textStatus->setText(tr("connecting to wpa_supplicant"));
 	timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), SLOT(ping()));
-	timer->setSingleShot(FALSE);
+	timer->setSingleShot(false); //FALSE);
 	timer->start(1000);
 
 	if (openCtrlConnection(ctrl_iface) < 0) {
@@ -229,11 +232,11 @@ void WpaGui::languageChange()
 }
 
 
-void WpaGui::parse_argv()
+void WpaGui::parse_argv(int argc, char ** argv)
 {
 	int c;
 	for (;;) {
-		c = getopt(qApp->argc(), qApp->argv(), "i:p:t");
+		c = getopt(argc, argv, "i:p:t");
 		if (c < 0)
 			break;
 		switch (c) {
@@ -978,7 +981,7 @@ void WpaGui::selectNetwork( const QString &sel )
 	else
 		cmd = "any";
 	cmd.prepend("SELECT_NETWORK ");
-	ctrlRequest(cmd.toAscii().constData(), reply, &reply_len);
+	ctrlRequest(cmd.toLatin1().constData(), reply, &reply_len);
 	triggerUpdate();
 	stopWpsRun(false);
 }
@@ -994,11 +997,11 @@ void WpaGui::enableNetwork(const QString &sel)
 		cmd.truncate(cmd.indexOf(':'));
 	else if (!cmd.startsWith("all")) {
 		printf("Invalid editNetwork '%s'\n",
-		       cmd.toAscii().constData());
+		       cmd.toLatin1().constData());
 		return;
 	}
 	cmd.prepend("ENABLE_NETWORK ");
-	ctrlRequest(cmd.toAscii().constData(), reply, &reply_len);
+	ctrlRequest(cmd.toLatin1().constData(), reply, &reply_len);
 	triggerUpdate();
 }
 
@@ -1013,11 +1016,11 @@ void WpaGui::disableNetwork(const QString &sel)
 		cmd.truncate(cmd.indexOf(':'));
 	else if (!cmd.startsWith("all")) {
 		printf("Invalid editNetwork '%s'\n",
-		       cmd.toAscii().constData());
+		       cmd.toLatin1().constData());
 		return;
 	}
 	cmd.prepend("DISABLE_NETWORK ");
-	ctrlRequest(cmd.toAscii().constData(), reply, &reply_len);
+	ctrlRequest(cmd.toLatin1().constData(), reply, &reply_len);
 	triggerUpdate();
 }
 
@@ -1103,11 +1106,11 @@ void WpaGui::removeNetwork(const QString &sel)
 		cmd.truncate(cmd.indexOf(':'));
 	else if (!cmd.startsWith("all")) {
 		printf("Invalid editNetwork '%s'\n",
-		       cmd.toAscii().constData());
+		       cmd.toLatin1().constData());
 		return;
 	}
 	cmd.prepend("REMOVE_NETWORK ");
-	ctrlRequest(cmd.toAscii().constData(), reply, &reply_len);
+	ctrlRequest(cmd.toLatin1().constData(), reply, &reply_len);
 	triggerUpdate();
 }
 
@@ -1167,14 +1170,14 @@ int WpaGui::getNetworkDisabled(const QString &sel)
 	int pos = cmd.indexOf(':');
 	if (pos < 0) {
 		printf("Invalid getNetworkDisabled '%s'\n",
-		       cmd.toAscii().constData());
+		       cmd.toLatin1().constData());
 		return -1;
 	}
 	cmd.truncate(pos);
 	cmd.prepend("GET_NETWORK ");
 	cmd.append(" disabled");
 
-	if (ctrlRequest(cmd.toAscii().constData(), reply, &reply_len) >= 0
+	if (ctrlRequest(cmd.toLatin1().constData(), reply, &reply_len) >= 0
 	    && reply_len >= 1) {
 		reply[reply_len] = '\0';
 		if (!str_match(reply, "FAIL"))
@@ -1257,7 +1260,7 @@ void WpaGui::saveConfig()
 
 void WpaGui::selectAdapter( const QString & sel )
 {
-	if (openCtrlConnection(sel.toAscii().constData()) < 0)
+	if (openCtrlConnection(sel.toLatin1().constData()) < 0)
 		printf("Failed to open control connection to "
 		       "wpa_supplicant.\n");
 	updateStatus();
@@ -1557,7 +1560,7 @@ void WpaGui::wpsApPin()
 	size_t reply_len = sizeof(reply);
 
 	QString cmd("WPS_REG " + bssFromScan + " " + wpsApPinEdit->text());
-	if (ctrlRequest(cmd.toAscii().constData(), reply, &reply_len) < 0)
+	if (ctrlRequest(cmd.toLatin1().constData(), reply, &reply_len) < 0)
 		return;
 
 	wpsStatusText->setText(tr("Waiting for AP/Enrollee"));

@@ -2,6 +2,8 @@ TEMPLATE	= app
 LANGUAGE	= C++
 TRANSLATIONS	= lang/wpa_gui_de.ts
 
+QT += widgets
+
 CONFIG	+= qt warn_on release
 
 DEFINES += CONFIG_CTRL_IFACE

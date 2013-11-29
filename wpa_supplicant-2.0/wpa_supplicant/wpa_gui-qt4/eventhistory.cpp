@@ -73,15 +73,15 @@ void EventListModel::addEvent(QString time, QString msg)
 }
 
 
-EventHistory::EventHistory(QWidget *parent, const char *, bool, Qt::WFlags)
+EventHistory::EventHistory(QWidget *parent, const char *, bool, Qt::WindowFlags)
 	: QDialog(parent)
 {
 	setupUi(this);
 
 	connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
-	eventListView->setItemsExpandable(FALSE);
-	eventListView->setRootIsDecorated(FALSE);
+	eventListView->setItemsExpandable(false);//FALSE);
+	eventListView->setRootIsDecorated(false); //FALSE);
 	elm = new EventListModel(parent);
 	eventListView->setModel(elm);
 }

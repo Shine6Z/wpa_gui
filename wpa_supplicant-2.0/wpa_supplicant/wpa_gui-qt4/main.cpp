@@ -6,10 +6,13 @@
  * See README for more details.
  */
 
+//hack
+#define QT_NO_SESSIONMANAGER
+
 #ifdef CONFIG_NATIVE_WINDOWS
 #include <winsock.h>
 #endif /* CONFIG_NATIVE_WINDOWS */
-#include <QApplication>
+#include <QtWidgets/QApplication>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QTranslator>
 #include "wpagui.h"
@@ -18,27 +21,26 @@
 class WpaGuiApp : public QApplication
 {
 public:
-	WpaGuiApp(int &argc, char **argv);
+	WpaGuiApp(int argc, char **argv);
 
 #ifndef QT_NO_SESSIONMANAGER
-	virtual void saveState(QSessionManager &manager);
+	void saveState();
 #endif
 
 	WpaGui *w;
 };
 
-WpaGuiApp::WpaGuiApp(int &argc, char **argv) : QApplication(argc, argv)
+WpaGuiApp::WpaGuiApp(int argc, char **argv) : QApplication(argc, argv)
 {
 }
 
 #ifndef QT_NO_SESSIONMANAGER
-void WpaGuiApp::saveState(QSessionManager &manager)
+void WpaGuiApp::saveState()
 {
-	QApplication::saveState(manager);
+	QApplication::saveState();
 	w->saveState();
 }
 #endif
-
 
 int main(int argc, char *argv[])
 {
@@ -54,7 +56,7 @@ int main(int argc, char *argv[])
 		translator.load("wpa_gui_" + locale, "lang");
 	app.installTranslator(&translator);
 
-	WpaGui w(&app);
+	WpaGui w(&app, 0, 0, 0, argc, argv);
 
 #ifdef CONFIG_NATIVE_WINDOWS
 	WSADATA wsaData;
